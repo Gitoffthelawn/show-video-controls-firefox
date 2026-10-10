@@ -18,10 +18,11 @@ LEVE NO USO DE RECURSOS
 
 PRIVADA POR PROJETO
 • Sem análise de uso e sem rastreamento. A extensão em si não faz nenhuma requisição de rede.
-• As listas de sites, o idioma e o tema ficam salvos localmente no seu navegador.
+• As listas de sites, a escolha sobre a reprodução automática, o idioma e o tema ficam salvos localmente no seu navegador.
 • Código aberto sob a GPLv3, então você pode ler exatamente o que ela faz.
 
 TAMBÉM INCLUÍDO
+• "Bloquear reprodução automática" opcional, desligado por padrão: os vídeos começam pausados e tocam quando você aperta o play.
 • Tema claro, escuro ou do sistema.
 • Interface em inglês e português do Brasil.
 • Pequenos ajustes para 9GAG e Instagram, onde camadas sobrepostas podem cobrir os controles.

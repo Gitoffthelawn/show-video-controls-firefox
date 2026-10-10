@@ -30,14 +30,16 @@ or “Show controls” steps for each video.
   [Performance](#performance).
 - **Your sites, your rules.** Run on supported sites by default, or enable controls
   only for the sites you choose. Each mode keeps its own list.
+- **Optional autoplay block.** Turn on **Block autoplay** and videos start paused until
+  you press play. It is off by default. See [Block autoplay](#block-autoplay-optional).
 - **Changes apply right away.** Open pages pick up new site rules and mode changes
   without a reload.
 - **An appearance that fits.** Choose Light, Dark, or System and keep that preference
   between sessions.
 - **English or Brazilian Portuguese.** Pick **🇺🇸 en-US** or **🇧🇷 pt-BR** from the
   language menu. Switching languages preserves the domain you are typing.
-- **Settings stored locally.** Your site lists, language, and theme stay in the browser's
-  local extension storage.
+- **Settings stored locally.** Your site lists, autoplay choice, language, and theme stay in
+  the browser's local extension storage.
 
 ## A cleaner way to manage your controls
 
@@ -78,6 +80,24 @@ Choose **Remove** to delete an entry.
   provides itself are never touched. On 9GAG, overlays the add-on removed only come
   back after a reload.
 
+### Block autoplay (optional)
+
+Off by default. Turn on **Block autoplay** in the popup and videos on the sites where
+the add-on is active start paused. Use their controls to play them.
+
+- A video you start yourself (a click, a tap or a key press) plays normally. After that
+  you can pause and resume it freely, media keys included.
+- Videos that are already playing when you turn the option on are not paused. On a page
+  that loads with the option on, videos that started by themselves are paused.
+- Feeds that reuse one video for many clips, such as Instagram reels, ask for your play
+  again for each new clip.
+- It follows the same site rules as the controls, applies to open pages right away, and
+  does nothing on the sites the manifest excludes.
+- **Limits.** A video can play for a split second before it is paused. A media key or
+  headset button pressed on a video you never started pauses it again. Pages that wait
+  for their own `play()` call may log an error. Muted background videos that a site
+  starts by itself are paused too.
+
 ### Make it yours
 
 Use **Language** to choose **en-US** or **pt-BR**, and **Theme** to choose **Light**,
@@ -102,6 +122,9 @@ low-power devices.
   read again on every page change.
 - **Only new content is inspected.** When a page adds elements, the add-on checks just
   those elements for videos, never the whole document.
+- **Autoplay blocking costs nothing until you use it.** With the option off, no listener
+  is attached. With it on, the page script reacts to two rare media events (a video
+  starts, a video drops its source), with no timers and no polling.
 - **Work is batched.** Changes are handled at most once per animation frame, and
   Browsers pause animation frames in background tabs, so hidden tabs use no extra CPU.
 
@@ -204,7 +227,8 @@ from the Firefox source in a few documented ways, listed at the top of the scrip
 
 Keep changes readable and commented. Add matching translation keys to both
 language dictionaries, and preserve the existing `mode`, `excludedDomains`, and
-`includedDomains` storage keys. The `language` and `theme` keys hold UI preferences.
+`includedDomains` storage keys. The `language` and `theme` keys hold UI preferences, and
+`blockAutoplay` is the autoplay switch (only the boolean `true` turns it on).
 Use the `api` alias (`globalThis.browser ?? globalThis.chrome`) for extension APIs, never
 `browser.*` or `chrome.*` directly, so the same code runs on every browser. If a change
 affects behavior that the [store texts](store/README.md) describe, update them in both languages.

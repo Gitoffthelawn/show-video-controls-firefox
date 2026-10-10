@@ -5,6 +5,7 @@
 // (exclude vs include-only) and manage separate domain lists for each mode.
 // All data is persisted using storage.local so choices survive reloads.
 // Language and theme are UI preferences; existing mode/list keys are unchanged.
+// "Block autoplay" is a single global on/off value (blockAutoplay), off by default.
 
 // Firefox exposes the promise-based `browser` namespace; Chrome, Edge and other
 // Chromium browsers expose `chrome`, which also returns promises in Manifest V3.
@@ -14,6 +15,7 @@ const state = {
 	mode: 'exclude',
 	language: 'en',
 	theme: 'system',
+	blockAutoplay: false,
 	excludedDomains: [],
 	includedDomains: []
 };
@@ -83,8 +85,21 @@ function applyPreferences() {
 	});
 
 	document.getElementById('domainInput').placeholder = translate('domainPlaceholder');
+	updateAutoplayCard();
 	updateDomainList();
 	renderFeedback();
+}
+
+// Show the stored autoplay choice. The "On" chip and the details box exist only
+// while the option is on, and the box is read as part of the switch's description
+// only then. Rendering from state also undoes a switch flip if the save failed.
+function updateAutoplayCard() {
+	const on = state.blockAutoplay;
+	const toggle = document.getElementById('autoplayToggle');
+	toggle.checked = on;
+	toggle.setAttribute('aria-describedby', on ? 'autoplayHint autoplayInfo' : 'autoplayHint');
+	document.getElementById('autoplayChip').hidden = !on;
+	document.getElementById('autoplayInfo').hidden = !on;
 }
 
 // The menu supports touch, outside clicks, Escape, and standard arrow-key navigation.
@@ -360,6 +375,7 @@ async function initializePopup() {
 		state.mode = data.mode === 'include' ? 'include' : 'exclude';
 		state.language = data.language === 'pt-BR' ? 'pt-BR' : 'en';
 		state.theme = ['light', 'dark'].includes(data.theme) ? data.theme : 'system';
+		state.blockAutoplay = data.blockAutoplay === true; // Missing or invalid means off.
 		for (const key of ['excludedDomains', 'includedDomains']) {
 			state[key] = Array.isArray(data[key])
 				? data[key].filter(domain => typeof domain === 'string')
@@ -387,6 +403,10 @@ async function initializePopup() {
 	});
 	document.getElementById('themeSelect').addEventListener('change', event => {
 		saveSettings({ theme: event.target.value });
+	});
+	// Open pages follow the change on their own (the page script listens to storage).
+	document.getElementById('autoplayToggle').addEventListener('change', event => {
+		saveSettings({ blockAutoplay: event.target.checked });
 	});
 	setupLanguageMenu();
 }

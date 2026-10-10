@@ -76,6 +76,25 @@
 				</label>
 			</fieldset>
 
+			<!-- Autoplay: off by default. The whole row is the click target. The details box
+			     and the "On" chip stay hidden until the option is on (popup.js shows them). -->
+			<section class="autoplay-card" aria-labelledby="autoplayTitle">
+				<div class="autoplay-heading">
+					<h2 id="autoplayTitle" data-i18n="autoplayTitle">Autoplay</h2>
+					<span id="autoplayChip" class="state-chip" data-i18n="stateOn" hidden>On</span>
+				</div>
+				<label class="switch-row" for="autoplayToggle">
+					<span>
+						<strong id="autoplayLabel" data-i18n="autoplayLabel">Block autoplay</strong>
+						<span id="autoplayHint" class="secondary" data-i18n="autoplayDescription">Videos start paused. Use the controls to play them.</span>
+					</span>
+					<!-- A native checkbox with the switch role keeps keyboard and screen-reader support. -->
+					<input type="checkbox" role="switch" id="autoplayToggle" class="switch"
+						aria-labelledby="autoplayLabel" aria-describedby="autoplayHint" />
+				</label>
+				<p id="autoplayInfo" class="autoplay-info" data-i18n="autoplayInfo" hidden>Videos you start yourself play normally, and videos that are already playing are not paused. Feeds that autoplay muted clips, such as 9GAG and Instagram, will start paused too.</p>
+			</section>
+
 			<section class="list-card" aria-labelledby="pageTitle">
 				<div class="list-heading">
 					<h2 id="pageTitle">Excluded sites</h2>

@@ -18,10 +18,11 @@ LIGHT ON RESOURCES
 
 PRIVATE BY DESIGN
 • No analytics and no tracking. The extension itself makes no network requests.
-• Your site lists, language and theme are stored locally in your browser.
+• Your site lists, autoplay choice, language and theme are stored locally in your browser.
 • Open source under the GPLv3, so you can read exactly what it does.
 
 ALSO INCLUDED
+• Optional "Block autoplay", off by default: videos start paused and play when you press play.
 • Light, dark or system theme.
 • Interface in English and Brazilian Portuguese.
 • Small fixes for 9GAG and Instagram, where overlays can cover the controls.
