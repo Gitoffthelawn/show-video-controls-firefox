@@ -6,6 +6,8 @@
 // 2) Only when enabled: turns on native <video> controls and, on a few sites,
 //    removes overlays that block clicks.
 // 3) Only when enabled: watches the DOM for newly added videos/overlays.
+// 4) Only when enabled AND the user turned on "Block autoplay": pauses videos
+//    that start playing without a person having asked for it.
 //
 // Performance notes (why the script is written this way):
 // - When the site is disabled (excluded, or not in the include-only list) the
@@ -15,12 +17,16 @@
 // - The observer only inspects nodes that were ADDED, never the whole document,
 //   and batches the work into at most one run per animation frame. Browsers
 //   pause animation frames in background tabs, so hidden tabs cost nothing.
+// - Autoplay blocking is event driven: two rare media events, no timers, no
+//   polling, and nothing at all while the option is off (the default).
 //
 // Behavior is controlled by values stored in the extension's local storage
 // (storage.local, reached through the `api` alias defined below):
 // - mode: 'exclude' (default) or 'include'.
 // - excludedDomains: in exclude mode, the sites where the add-on stays off.
 // - includedDomains: in include mode, the only sites where the add-on runs.
+// - blockAutoplay: true to pause videos that start without user interaction.
+//   Anything other than the boolean true (including a missing key) means off.
 
 (() => {
 	'use strict';
@@ -30,7 +36,13 @@
 	// Manifest V3. Resolved once, inside this closure, so nothing leaks into the page.
 	const api = globalThis.browser ?? globalThis.chrome;
 
-	const SETTINGS_KEYS = ['mode', 'excludedDomains', 'includedDomains'];
+	const SETTINGS_KEYS = ['mode', 'excludedDomains', 'includedDomains', 'blockAutoplay'];
+
+	// The browser's record of real clicks, taps and key presses on this page.
+	// Used to tell a video the user started from one the page started by itself.
+	// If an engine lacks it, autoplay blocking stays inert instead of guessing,
+	// so videos are never paused for the wrong reason.
+	const userActivation = navigator.userActivation || null;
 
 	// Computed once per page: the hostname never changes for this document.
 	const hostname = window.location.hostname.toLowerCase();
@@ -50,6 +62,8 @@
 	let pendingNodes = []; // Added elements waiting for the next batch.
 	let frameId = 0; // Pending requestAnimationFrame id, or 0.
 	let syncCounter = 0; // Lets a newer settings read win over an older one.
+	let firstSync = true; // True until the first settings read has been applied.
+	let blockingAutoplay = false; // True only while the autoplay listeners are attached.
 
 	// ---------- Domain matching ----------
 
@@ -314,6 +328,83 @@
 		}
 	}
 
+	// ---------- Autoplay blocking (optional, off by default) ----------
+
+	// Videos whose CURRENT source a person started, or that were already playing
+	// when blocking began. They may pause and resume freely, so the controls,
+	// media keys and replay keep working. A WeakSet lets removed videos be
+	// garbage collected.
+	let userStarted = new WeakSet();
+
+	// A video started (or resumed) playing. Pause it again unless a person is
+	// behind it. "Behind it" means a click, tap or key press happened a moment
+	// ago, which the browser reports as active user activation (about 5 seconds).
+	// Only pause() is ever called: the page and the DOM are left as they are.
+	function onVideoPlay(event) {
+		const video = event.target;
+		if (!video || video.localName !== 'video') return;
+		if (userStarted.has(video)) return; // Already allowed for this source.
+		if (userActivation.isActive) {
+			userStarted.add(video); // The user pressed play: allow it from now on.
+			return;
+		}
+		video.pause();
+	}
+
+	// The element dropped its source (a new one is about to load). Feeds such as
+	// Instagram reels reuse one <video> for many clips, so each new source has to
+	// earn its permission again. This is not tied to "loadstart" on purpose: that
+	// event can fire right after the user's own first click and would take the
+	// permission away from the video the user just started.
+	function onVideoEmptied(event) {
+		const video = event.target;
+		if (video && video.localName === 'video') userStarted.delete(video);
+	}
+
+	// Begin blocking. Videos that are playing right now are handled once:
+	// - On a freshly loaded page, with no interaction yet, they were started by
+	//   the page itself, so they are paused.
+	// - When the option is turned on later (from the popup), they are left alone
+	//   and allowed to continue: the video someone is watching must not stop just
+	//   because they opened the popup. Only later starts are blocked.
+	function startBlockingAutoplay(pageJustLoaded) {
+		if (blockingAutoplay) return;
+		blockingAutoplay = true;
+		// Media events do not bubble, hence the capturing listeners on the document.
+		document.addEventListener('play', onVideoPlay, true);
+		document.addEventListener('emptied', onVideoEmptied, true);
+
+		const pausePlaying = pageJustLoaded && !userActivation.hasBeenActive;
+		for (const video of document.getElementsByTagName('video')) {
+			if (video.paused) continue;
+			if (pausePlaying) {
+				video.pause();
+			} else {
+				userStarted.add(video);
+			}
+		}
+	}
+
+	// Stop blocking and release everything. Videos paused earlier stay paused
+	// (the page's own state is not guessed at); the controls start them again.
+	function stopBlockingAutoplay() {
+		if (!blockingAutoplay) return;
+		blockingAutoplay = false;
+		document.removeEventListener('play', onVideoPlay, true);
+		document.removeEventListener('emptied', onVideoEmptied, true);
+		userStarted = new WeakSet();
+	}
+
+	// Apply the stored option. Only called while the add-on is enabled on this
+	// site, and a no-op without the user-activation API (see above).
+	function setAutoplayBlocking(wanted) {
+		if (wanted && userActivation) {
+			startBlockingAutoplay(firstSync);
+		} else {
+			stopBlockingAutoplay();
+		}
+	}
+
 	// ---------- DOM observation ----------
 
 	// Process everything collected since the last frame in a single pass.
@@ -381,6 +472,7 @@
 	function disable() {
 		if (!active) return; // Never enabled (or already disabled): nothing to undo.
 		active = false;
+		stopBlockingAutoplay(); // Disabled means disabled: no autoplay listeners either.
 		if (observer) {
 			observer.disconnect();
 			observer = null;
@@ -408,9 +500,12 @@
 			if (myRun !== syncCounter) return;
 			if (isEnabledFor(data)) {
 				enable();
+				// Strict boolean check: storage is untrusted input.
+				setAutoplayBlocking(data.blockAutoplay === true);
 			} else {
 				disable();
 			}
+			firstSync = false; // Later reads come from popup changes, not page loads.
 		} catch (error) {
 			// If settings cannot be read, do nothing rather than guess.
 			disable();

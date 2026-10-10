@@ -11,6 +11,7 @@
 	--accent-surface-color: #eeebff;
 	--warning-color: #a32323;
 	--warning-surface-color: #fff0f0;
+	--switch-off-color: #7b8499; /* 3:1 or better against the card surface. */
 }
 
 /* Follow the OS unless the user explicitly chooses the light theme. */
@@ -27,6 +28,7 @@
 		--accent-surface-color: #302b49;
 		--warning-color: #ffb4b4;
 		--warning-surface-color: #40252b;
+		--switch-off-color: #7f879c;
 	}
 }
 
@@ -43,6 +45,7 @@
 	--accent-surface-color: #302b49;
 	--warning-color: #ffb4b4;
 	--warning-surface-color: #40252b;
+	--switch-off-color: #7f879c;
 }
 
 * {
@@ -287,6 +290,97 @@ a:focus-visible {
 	}
 }
 
+/* Autoplay card: a titled card like the site list, holding one switch row.
+   The "On" chip and the details box carry the hidden attribute until the option
+   is on (popup.js), so neither sets its own display value. */
+.autoplay-card {
+	margin-bottom: 18px;
+	padding: 14px;
+	border: 1px solid var(--border-color);
+	border-radius: 14px;
+	background-color: var(--surface-color);
+}
+
+.autoplay-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 4px;
+}
+
+.state-chip {
+	padding: 2px 8px;
+	border-radius: 6px;
+	background-color: var(--accent-surface-color);
+	color: var(--accent-color);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+/* The whole row is the click target, above the 44px touch minimum. */
+.switch-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	min-height: 44px;
+	cursor: pointer;
+}
+
+.switch-row strong,
+.switch-row .secondary {
+	display: block;
+}
+
+.switch-row strong {
+	font-weight: 600;
+}
+
+/* A native checkbox drawn as a switch: no transition and no script, so it costs
+   nothing. The thumb uses theme colors that stay readable on both track states. */
+.switch {
+	appearance: none;
+	-webkit-appearance: none;
+	position: relative;
+	flex-shrink: 0;
+	width: 40px;
+	height: 24px;
+	margin: 0 6px;
+	border-radius: 12px;
+	background-color: var(--switch-off-color);
+	cursor: pointer;
+}
+
+.switch::before {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background-color: var(--surface-color);
+}
+
+.switch:checked {
+	background-color: var(--accent-color);
+}
+
+.switch:checked::before {
+	left: 19px;
+	background-color: var(--accent-text-color);
+}
+
+.autoplay-info {
+	margin-top: 10px;
+	padding: 10px;
+	border-radius: 8px;
+	background-color: var(--accent-surface-color);
+	color: var(--accent-color);
+	font-size: 12px;
+}
+
 .list-card {
 	padding: 14px;
 	border: 1px solid var(--border-color);
@@ -519,5 +613,23 @@ a:focus-visible {
 @media (forced-colors: active) {
 	.mode-card:has(input:checked) {
 		outline: 2px solid Highlight;
+	}
+
+	/* System colors replace the theme ones, so give the switch an outline and
+	   system-colored parts to stay visible in both states. */
+	.switch {
+		border: 1px solid ButtonText;
+	}
+
+	.switch::before {
+		background-color: ButtonText;
+	}
+
+	.switch:checked {
+		background-color: Highlight;
+	}
+
+	.switch:checked::before {
+		background-color: HighlightText;
 	}
 }

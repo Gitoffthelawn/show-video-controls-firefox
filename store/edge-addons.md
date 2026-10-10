@@ -75,7 +75,7 @@ Written in English because the certification team reads it.
 >
 > The extension makes no network requests, collects no data and stores only its settings locally. Permissions: `storage` (settings), `activeTab` (prefill the current domain in the popup) and a content script on all sites, needed to find video elements. The source is plain JavaScript with no build step: https://github.com/FelipheMP/auto-on-video-controls
 >
-> A much older version of this extension was rejected under policy 1.1.2 (similarity to another product). This version uses a different name and an original icon, and adds what the listing of the product it is based on does not describe: per-site allow and block lists with two modes, settings that apply to open pages without a reload, a design that does no work on sites where it is turned off, small fixes for overlays on 9GAG and Instagram, light and dark themes, and an English and Brazilian Portuguese interface. It is open source (GPLv3), and its description credits the original author.
+> A much older version of this extension was rejected under policy 1.1.2 (similarity to another product). This version uses a different name and an original icon, and adds what the listing of the product it is based on does not describe: per-site allow and block lists with two modes, settings that apply to open pages without a reload, a design that does no work on sites where it is turned off, an optional "Block autoplay" switch (off by default), small fixes for overlays on 9GAG and Instagram, light and dark themes, and an English and Brazilian Portuguese interface. It is open source (GPLv3), and its description credits the original author.
 
 ## Images
 

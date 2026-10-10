@@ -67,9 +67,9 @@ The text fields in this tab are reviewed by Google staff, so they are in English
 
 | Permission | Justification |
 | --- | --- |
-| `storage` | Saves the user's choices locally: the mode (all sites except a list, or only a list), the two site lists, the interface language and the theme. Nothing is synced or sent anywhere. |
+| `storage` | Saves the user's choices locally: the mode (all sites except a list, or only a list), the two site lists, the optional "Block autoplay" switch, the interface language and the theme. Nothing is synced or sent anywhere. |
 | `activeTab` | When the user opens the popup, reads the address of the current tab only to prefill the "Site domain" field, so a site can be added to the list in one click. It is not used in the background. |
-| Content script on all sites (`<all_urls>` match in `content_scripts`) | The extension has to find `<video>` elements on whichever page the user visits in order to turn on their controls. The script only reads the page's host name, the user's saved site lists and `<video>` elements. It collects, stores and transmits no page content. It is already inactive on the sites the user excludes and on the video services excluded in the manifest. |
+| Content script on all sites (`<all_urls>` match in `content_scripts`) | The extension has to find `<video>` elements on whichever page the user visits in order to turn on their controls. The script only reads the page's host name, the user's saved site lists and `<video>` elements. Only if the user turns on the optional "Block autoplay" switch (off by default), it also listens for a video starting to play and pauses it when no click, tap or key press caused it. It collects, stores and transmits no page content. It is already inactive on the sites the user excludes and on the video services excluded in the manifest. |
 
 **Remote code**: No. All code is in the package, and there is no `eval` or remotely hosted script.
 

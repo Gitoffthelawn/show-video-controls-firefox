@@ -1,6 +1,6 @@
 # Privacy policy
 
-*Last updated: October 6, 2026*
+*Last updated: October 10, 2026*
 
 Applies to the browser extension published as **Auto-On Video Controls**
 on Firefox Add-ons and as **Auto-On Video Controls** on the Chrome Web Store and
@@ -15,13 +15,16 @@ The extension does not collect, store, sell or send your personal data or your b
 - **The host name of the page you are on**, to check it against your site lists.
 - **The `<video>` elements on the page**, to turn on their native playback controls.
 - **The address of the active tab, only when you open the popup**, to prefill the site field.
+- **Whether a video starts playing, and whether you recently interacted with the page** (a
+  yes or no that the browser keeps), only while you have "Block autoplay" turned on, to pause
+  videos that start without you. What you click or type is not read or recorded.
 
 None of this leaves your device. The extension itself makes no network requests.
 
 ## What the extension stores
 
 Only your settings, locally in the browser's extension storage: the mode, your two site lists,
-the interface language and the theme. They are not synced or sent anywhere. Removing the
+the "Block autoplay" switch, the interface language and the theme. They are not synced or sent anywhere. Removing the
 extension deletes them.
 
 ## Third parties
@@ -39,7 +42,7 @@ Questions: [open an issue](https://github.com/FelipheMP/auto-on-video-controls/i
 
 # Política de privacidade
 
-*Última atualização: 6 de outubro de 2026*
+*Última atualização: 10 de outubro de 2026*
 
 Vale para a extensão publicada como **Auto-On Video Controls** no Firefox
 Add-ons e como **Auto-On Video Controls** na Chrome Web Store e no Microsoft Edge Add-ons.
@@ -53,13 +56,16 @@ A extensão não coleta, armazena, vende nem envia seus dados pessoais ou sua at
 - **O nome do host da página em que você está**, para compará-lo com as suas listas de sites.
 - **Os elementos `<video>` da página**, para ligar os controles nativos de reprodução.
 - **O endereço da aba ativa, somente quando você abre o popup**, para preencher o campo de site.
+- **Se um vídeo começa a tocar e se você interagiu com a página há pouco** (um sim ou não que o
+  navegador mantém), somente enquanto "Bloquear reprodução automática" estiver ligada, para pausar
+  vídeos que começam sem você. O que você clica ou digita não é lido nem registrado.
 
 Nada disso sai do seu dispositivo. A extensão em si não faz nenhuma requisição de rede.
 
 ## O que a extensão armazena
 
 Apenas as suas configurações, localmente no armazenamento de extensões do navegador: o modo,
-as duas listas de sites, o idioma da interface e o tema. Elas não são sincronizadas nem enviadas
+as duas listas de sites, a chave "Bloquear reprodução automática", o idioma da interface e o tema. Elas não são sincronizadas nem enviadas
 a lugar nenhum. Remover a extensão apaga esses dados.
 
 ## Terceiros
